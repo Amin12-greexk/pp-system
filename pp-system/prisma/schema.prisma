@@ -1,0 +1,161 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Enums
+
+enum Role {
+  EMPLOYEE
+  MANAGER
+  DIRECTOR
+  PURCHASING
+  FINANCE
+  ADMIN
+}
+
+enum RequestStatus {
+  DRAFT
+  PENDING_APPROVAL
+  NEEDS_REVISION
+  APPROVED
+  REJECTED
+  PURCHASING_REVIEW
+  ORDERED
+  COMPLETED
+}
+
+enum ApprovalRole {
+  MANAGER
+  DIRECTOR
+  PURCHASING
+  SYSTEM
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISED
+}
+
+enum POStatus {
+  CREATED
+  SENT
+  RECEIVED
+  CLOSED
+  CANCELED
+}
+
+// Models
+
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String
+  email        String      @unique
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  role         Role        @default(EMPLOYEE)
+
+  requests  PurchaseRequest[] @relation("Requester")
+  approvals Approval[]
+}
+
+model Department {
+  id   Int    @id @default(autoincrement())
+  name String
+  code String @unique
+
+  users    User[]
+  requests PurchaseRequest[]
+}
+
+model Vendor {
+  id            Int      @id @default(autoincrement())
+  name          String
+  city          String?
+  contactPerson String?
+  phone         String?
+  email         String?
+  bankAccount   String?
+  brand         String?
+  websiteUrl    String?
+  catalogUrl    String?
+  imageUrl      String?
+  notes         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  suggestedIn    PurchaseRequest[] @relation("SuggestedVendor")
+  chosenIn       PurchaseRequest[] @relation("ChosenVendor")
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseRequest {
+  id                   Int           @id @default(autoincrement())
+  number               String        @unique
+  requesterId          Int
+  requester            User          @relation("Requester", fields: [requesterId], references: [id])
+  departmentId         Int
+  department           Department    @relation(fields: [departmentId], references: [id])
+  status               RequestStatus @default(DRAFT)
+  suggestedVendorId    Int?
+  suggestedVendor      Vendor?       @relation("SuggestedVendor", fields: [suggestedVendorId], references: [id])
+  chosenVendorId       Int?
+  chosenVendor         Vendor?       @relation("ChosenVendor", fields: [chosenVendorId], references: [id])
+  totalEstimatedAmount Float?
+  totalFinalAmount     Float?
+  neededAt             DateTime?
+  purpose              String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  items          PurchaseRequestItem[]
+  approvals      Approval[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseRequestItem {
+  id                 Int             @id @default(autoincrement())
+  purchaseRequestId  Int
+  purchaseRequest    PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+  description        String
+  quantity           Float
+  unit               String
+  estimatedUnitPrice Float?
+  requiredDate       DateTime?
+}
+
+model Approval {
+  id                Int             @id @default(autoincrement())
+  purchaseRequestId Int
+  purchaseRequest   PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+  approverId        Int
+  approver          User            @relation(fields: [approverId], references: [id])
+
+  level     Int
+  role      ApprovalRole
+  status    ApprovalStatus @default(PENDING)
+  note      String?
+  createdAt DateTime       @default(now())
+  decidedAt DateTime?
+}
+
+model PurchaseOrder {
+  id                Int             @id @default(autoincrement())
+  number            String          @unique
+  purchaseRequestId Int
+  purchaseRequest   PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+  vendorId          Int
+  vendor            Vendor          @relation(fields: [vendorId], references: [id])
+  orderDate         DateTime        @default(now())
+  status            POStatus        @default(CREATED)
+  totalAmount       Float?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
