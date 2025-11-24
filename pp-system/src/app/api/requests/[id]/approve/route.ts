@@ -14,6 +14,8 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const body = await req.json();
   const action = body.action as 'APPROVE' | 'REJECT' | 'REVISE';
+  const signature = body.signature as string | undefined;
+  const signatureImage = body.signatureImage as string | undefined;
   const userId = getUserId(req);
   if (!userId) return unauthorized();
 
@@ -61,6 +63,8 @@ export async function POST(req: NextRequest, { params }: Params) {
         role,
         level,
         status: approvalStatus,
+        signature: signature ?? user.name ?? null,
+        signatureImage: signatureImage ?? null,
         note: body.note ?? null,
         decidedAt: new Date(),
       },

@@ -53,7 +53,9 @@ export async function POST(req: NextRequest) {
   }
 
   const items = (body.items ?? []) as Array<{
-    description: string;
+    itemName?: string;
+    remarks?: string;
+    description?: string;
     quantity: number;
     unit: string;
     estimatedUnitPrice?: number;
@@ -82,9 +84,13 @@ export async function POST(req: NextRequest) {
       neededAt: body.neededAt ? new Date(body.neededAt) : null,
       suggestedVendorId: body.suggestedVendorId ?? null,
       totalEstimatedAmount,
+      requesterSignature: body.signature ?? user.name ?? null,
+      requesterSignedAt: body.signature ? new Date() : null,
+      requesterSignatureImage: body.signatureImage ?? null,
       items: {
         create: items.map((i) => ({
-          description: i.description,
+          description: i.description ?? i.itemName ?? '',
+          remarks: i.remarks ?? null,
           quantity: i.quantity,
           unit: i.unit,
           estimatedUnitPrice: i.estimatedUnitPrice ?? null,

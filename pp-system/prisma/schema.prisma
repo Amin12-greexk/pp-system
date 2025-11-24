@@ -112,6 +112,9 @@ model PurchaseRequest {
   totalFinalAmount     Float?
   neededAt             DateTime?
   purpose              String?
+  requesterSignature   String?
+  requesterSignedAt    DateTime?
+  requesterSignatureImage String?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
@@ -125,6 +128,7 @@ model PurchaseRequestItem {
   purchaseRequestId  Int
   purchaseRequest    PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
   description        String
+  remarks            String?
   quantity           Float
   unit               String
   estimatedUnitPrice Float?
@@ -141,6 +145,8 @@ model Approval {
   level     Int
   role      ApprovalRole
   status    ApprovalStatus @default(PENDING)
+  signature String?
+  signatureImage String?
   note      String?
   createdAt DateTime       @default(now())
   decidedAt DateTime?

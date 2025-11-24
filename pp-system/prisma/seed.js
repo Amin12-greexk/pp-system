@@ -62,10 +62,12 @@ async function main() {
     create: { name: 'Finance', code: 'FIN' },
   });
 
+  // Set explicit IDs to align with hard-coded flows (1=employee, 2=manager, 3=purchasing)
   await prisma.user.upsert({
     where: { email: 'employee@example.com' },
-    update: {},
+    update: { departmentId: depIT.id },
     create: {
+      id: 1,
       name: 'Employee Test',
       email: 'employee@example.com',
       departmentId: depIT.id,
@@ -74,8 +76,9 @@ async function main() {
   });
   await prisma.user.upsert({
     where: { email: 'manager@example.com' },
-    update: {},
+    update: { departmentId: depIT.id },
     create: {
+      id: 2,
       name: 'Manager Test',
       email: 'manager@example.com',
       departmentId: depIT.id,
@@ -84,8 +87,9 @@ async function main() {
   });
   await prisma.user.upsert({
     where: { email: 'purchasing@example.com' },
-    update: {},
+    update: { departmentId: depFIN.id },
     create: {
+      id: 3,
       name: 'Purchasing Test',
       email: 'purchasing@example.com',
       departmentId: depFIN.id,

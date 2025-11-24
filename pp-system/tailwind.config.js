@@ -1,8 +1,9 @@
-export default {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './src/app/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-    './src/lib/**/*.{ts,tsx}',
+    './src/app/**/*.{ts,tsx,js,jsx}',
+    './src/components/**/*.{ts,tsx,js,jsx}',
+    './src/lib/**/*.{ts,tsx,js,jsx}',
   ],
   theme: {
     extend: {
@@ -12,6 +13,8 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        muted: 'hsl(var(--muted))',
+        'muted-foreground': 'hsl(var(--muted-foreground))',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -20,4 +23,5 @@ export default {
       },
     },
   },
+  plugins: [],
 };
