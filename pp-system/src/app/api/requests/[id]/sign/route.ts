@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma';
 import { getUserId, unauthorized } from '@/lib/auth';
 import { RequestStatus } from '@prisma/client';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 // POST /api/requests/:id/sign
 export async function POST(req: NextRequest, { params }: Params) {
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (Number.isNaN(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
 
   const userId = getUserId(req);

@@ -6,7 +6,6 @@ import { getUserId, unauthorized } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get('q') ?? '').trim();
 
-  // In employee view, we only return results on search; when no query, return empty
   const where =
     q.length > 0
       ? {
@@ -20,15 +19,12 @@ export async function GET(req: NextRequest) {
             { brand: { contains: q.toUpperCase() } },
           ],
         }
-      : null;
+      : { isActive: true };
 
-  const vendors =
-    where !== null
-      ? await prisma.vendor.findMany({
-          where,
-          orderBy: { name: 'asc' },
-        })
-      : [];
+  const vendors = await prisma.vendor.findMany({
+    where,
+    orderBy: { name: 'asc' },
+  });
 
   return NextResponse.json(vendors);
 }

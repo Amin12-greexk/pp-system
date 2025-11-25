@@ -1,4 +1,4 @@
-// npm install prisma @prisma/client xlsx exceljs
+// npm install prisma @prisma/client xlsx exceljs bcrypt
 // In package.json add: "prisma": { "seed": "node prisma/seed.js" }
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -7,10 +7,15 @@ const path = require('path');
 const XLSX = require('xlsx');
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient } = require('@prisma/client');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // Hash default password for all users
+  const hashedPassword = await bcrypt.hash('Password123', 10);
+
   const filePath = path.join(__dirname, 'data', 'DATABASE HARGA BARANG.xlsx');
   const workbook = XLSX.readFile(filePath);
   const sheet = workbook.Sheets['DATA BASE HARGA '];
@@ -65,33 +70,36 @@ async function main() {
   // Set explicit IDs to align with hard-coded flows (1=employee, 2=manager, 3=purchasing)
   await prisma.user.upsert({
     where: { email: 'employee@example.com' },
-    update: { departmentId: depIT.id },
+    update: { departmentId: depIT.id, password: hashedPassword },
     create: {
       id: 1,
       name: 'Employee Test',
       email: 'employee@example.com',
+      password: hashedPassword,
       departmentId: depIT.id,
       role: 'EMPLOYEE',
     },
   });
   await prisma.user.upsert({
     where: { email: 'manager@example.com' },
-    update: { departmentId: depIT.id },
+    update: { departmentId: depIT.id, password: hashedPassword },
     create: {
       id: 2,
       name: 'Manager Test',
       email: 'manager@example.com',
+      password: hashedPassword,
       departmentId: depIT.id,
       role: 'MANAGER',
     },
   });
   await prisma.user.upsert({
     where: { email: 'purchasing@example.com' },
-    update: { departmentId: depFIN.id },
+    update: { departmentId: depFIN.id, password: hashedPassword },
     create: {
       id: 3,
       name: 'Purchasing Test',
       email: 'purchasing@example.com',
+      password: hashedPassword,
       departmentId: depFIN.id,
       role: 'PURCHASING',
     },

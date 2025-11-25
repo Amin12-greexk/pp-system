@@ -1,12 +1,23 @@
 import type { ReactNode } from 'react';
+import { cookies } from 'next/headers';
 import './globals.css';
+import AppLayout from '@/components/AppLayout';
 
 export const metadata = {
   title: 'PP System - Purchase Request Management',
   description: 'Modern internal purchase request management system',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+// Force dynamic rendering to prevent caching issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get('userId')?.value;
+  const userRole = cookieStore.get('userRole')?.value;
+  const userName = cookieStore.get('userName')?.value;
+
   return (
     <html lang="id">
       <head>
@@ -18,7 +29,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased font-[Inter]">
-        {children}
+        <AppLayout userRole={userRole} userId={userId} userName={userName}>
+          {children}
+        </AppLayout>
       </body>
     </html>
   );

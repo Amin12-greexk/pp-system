@@ -31,7 +31,18 @@ export async function GET(req: NextRequest) {
       department: true,
       requester: true,
       items: true,
-      approvals: true,
+      approvals: {
+        include: {
+          approver: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          level: 'asc',
+        },
+      },
       chosenVendor: true,
       suggestedVendor: true,
     },
